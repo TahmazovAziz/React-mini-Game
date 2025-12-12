@@ -78,8 +78,8 @@
 
 # Клонировать репозиторий 
 ```bash
-git clone https://github.com/скоро.git  
-cd   
+git clone git remote add origin https://github.com/TahmazovAziz/React-mini-Game.git  
+cd  React-mini-Game 
 ```
 
 # Установить зависимости 
