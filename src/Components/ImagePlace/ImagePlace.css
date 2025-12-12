@@ -1,0 +1,12 @@
+.image-container>img{
+    border: 2px solid black;
+    border-radius: 10px;
+}
+@keyframes ci {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

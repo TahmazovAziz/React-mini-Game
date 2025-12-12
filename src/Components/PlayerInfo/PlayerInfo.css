@@ -1,0 +1,26 @@
+.player-info{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  background: #e4c676;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 10px;
+  margin: 10px auto;
+}
+.player-info>p{
+    font-size: 20px;
+    text-transform: uppercase;
+}
+.health{
+    color: red;
+}
+.money{
+    color: #12db12;
+}
+.food{
+    color: #ca5010;
+}
