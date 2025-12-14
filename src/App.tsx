@@ -1,4 +1,4 @@
-import {  useEffect, useReducer, useRef, useState} from 'react'
+import {  useEffect, useMemo, useReducer, useRef, useState} from 'react'
 import type { RefObject } from 'react'
 import './App.css'
 // component
@@ -24,111 +24,10 @@ import sleepSoundPath from './assets/sounds/sleep.mp3'
 import moneySoundPath from './assets/sounds/money.mp3'
 import workSoundPath from './assets/sounds/workS.mp3'
 import useSound from './hooks/useSound'
+import GAME_CONFIG from './constants/gameConfig.ts'
+import gameReducer from './context/GameContext.tsx'
 
 function App() {
-
- const GAME_CONFIG = {
-  INITIAL_HEALTH: 100,
-  INITIAL_MONEY: 0,
-  INITIAL_FOOD: 0,
-  MAX_HEALTH: 100,
-  SLEEP_HEALTH_INCREASE: 30,
-  EAT_HEALTH_INCREASE: 10,
-  BREAD_COST: 5,
-  BREAD_FOOD_INCREASE: 1,
-  MEAT_COST: 10,
-  MEAT_FOOD_INCREASE: 2,
-  WORK_HEALTH_DECREASE: 1,
-  WORK_MONEY_INCREASE: 1,
-  EAT_FOOD_DECREASE: 1,
- }
-
-
-  type GameState = {
-    health: number;
-    money: number;
-    food: number;
-  }
-
-
- type GameAction = 
-  | {type:'EAT'}
-  | {type:'SLEEP'}
-  | {type:'BUY_BREAD'}
-  | {type:'BUY_MEAT'}
-  | {type:'RESET'}
-  | {type:'RESET_HEALTH'}
-  | {type:'WORK_BUILD'}
-  | {type:'WORK_OFFICE'}
-  | {type:'LOAD_GAME', payload:GameState}
-
-  const gameReducer = (state:GameState, action:GameAction) => {
-    switch(action.type) {
-      case 'EAT':
-        if(state.food > 0 && state.health < GAME_CONFIG.MAX_HEALTH) {
-          return {
-            ...state,
-            food: state.food - GAME_CONFIG.EAT_FOOD_DECREASE,
-            health: Math.min(state.health + GAME_CONFIG.EAT_HEALTH_INCREASE, GAME_CONFIG.MAX_HEALTH)
-          }
-        }
-        return state
-        case 'SLEEP':
-          if(state.health < 70) {
-            return {
-              ...state,
-              food: state.food - GAME_CONFIG.EAT_FOOD_DECREASE,
-              health: Math.min(state.health + GAME_CONFIG.SLEEP_HEALTH_INCREASE, 100)
-            }
-          }
-          return state
-        case 'BUY_BREAD':
-          if(state.money  >= GAME_CONFIG.BREAD_COST) {
-            return {
-              ...state,
-              money: state.money - GAME_CONFIG.BREAD_COST,
-              food: state.food + GAME_CONFIG.BREAD_FOOD_INCREASE
-            }
-          }
-          return state
-        case 'BUY_MEAT':
-          if(state.money  >= GAME_CONFIG.MEAT_COST) {
-            return {
-              ...state,
-              money: state.money - GAME_CONFIG.MEAT_COST,
-              food: state.food + GAME_CONFIG.MEAT_FOOD_INCREASE
-            }
-          }
-          return state;
-        case 'WORK_BUILD':
-            return {
-              ...state,
-              money:state.money + 5,
-              health:state.health - 15
-            }
-        case 'WORK_OFFICE':
-          return {
-            ...state,
-            money:state.money + 10,
-            health:state.health - 10
-          }
-        case 'RESET_HEALTH':
-          return {
-            ...state,
-            health:GAME_CONFIG.INITIAL_HEALTH,
-          }
-        case 'RESET':
-          return {
-            health:GAME_CONFIG.INITIAL_HEALTH,
-            money:GAME_CONFIG.INITIAL_MONEY,
-            food:GAME_CONFIG.INITIAL_FOOD
-          }
-        case 'LOAD_GAME':
-          return action.payload
-      default:
-        return state
-    }
-  }
 
   const [gameState, dispatch] = useReducer(gameReducer , {
     health: GAME_CONFIG.INITIAL_HEALTH,
@@ -141,16 +40,19 @@ function App() {
 
   const [view, setView] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
+////////
   const locationImages ={
     home: homeImage,
     street: streetImage,
     store: storeImage,
     work: workImage,
-    office: officeImage
+    office: officeImage,
+    bulding:'string',
   }
-  const [locationUrl, setLocationUrl] = useState(locationImages.home)
+  const [location, setLocation] = useState<keyof typeof locationImages>("home")
+  const [locationUrl, setLocationUrl] = useMemo(() => locationImages[location] , [locationImages, location])
+////////
   const timerRef = useRef<number | null>(null)
-  const [location, setLocation] = useState("home")
   const [modal, setModal] = useState(false)
   const [textModal, setTextModal] = useState("")
   const [transition, setTransition] = useState(false)
@@ -176,6 +78,7 @@ function App() {
   useEffect(()=>{
     loadGame()
   }, [])
+  
   useEffect(()=>{
     const preloadImage = () => {
       const promises = Object.values(locationImages).map(src => {
@@ -199,7 +102,6 @@ function App() {
     if(gameState.health <= 0) {
       dispatch({type:'RESET'})
       setLocation("home")
-      setLocationUrl(locationImages.home)
       setTextModal("GAME OVER!")
       setModal(true)
       setView(false)
@@ -246,6 +148,30 @@ function App() {
   }, [viewBuild, view])
 
 
+  const changeLocation = (
+    newlocation:keyof typeof locationImages,
+    options?:{
+      playSound?:()=>void,
+      stopSound?:(()=>void)[],
+      setViewBuild?:boolean,
+      setView?:boolean,
+    }
+  ) => {
+    setLocation(newlocation)
+    if(options?.stopSound){
+      options.stopSound.forEach(stop => stop())
+    }
+    if(options?.playSound){
+      options.playSound();
+    }
+    if(options?.setViewBuild !== undefined ){
+      setViewBuild(options.setViewBuild)
+    }
+    if(options?.setView !== undefined){
+      setView(options.setView)
+    }
+  
+  }
   const saveGame = () => {
     try{
       const saveGame = {
@@ -274,7 +200,6 @@ function App() {
         const saveData = JSON.parse(result)
         dispatch({type:'LOAD_GAME', payload:saveData.gameState})
         setLocation(saveData.location)
-        setLocationUrl(saveData.locationUrl)
       }
     }
     catch (error){
@@ -299,16 +224,12 @@ function App() {
 
   
   const goOutside = () => {
-    setLocation("street")
-    setLocationUrl(locationImages.street)
-    setView(false)
-    setTransition(true)
-    setTimeout(() => {setTransition(false)}, 1000)
-    soundStreetPlay()
-    soundHomeStop()
-    soundStoreStop()
-    setViewBuild(false)
-    soundWorkStop()
+    changeLocation("street",{
+      playSound:soundStreetPlay,
+      stopSound:[soundHomeStop, soundStoreStop, soundWorkStop],
+      setView:false,
+      setViewBuild:false
+    })
   }
 
 
@@ -364,54 +285,53 @@ const buyBread = () => {
 
 
   const work = () => {
-    
+    changeLocation("work",{
+      playSound:soundWorkPlay,
+      stopSound:[soundStreetStop],
+    })  
+    setViewBuild(false)
+    setView(false)
 
-    setLocation("work")
-    setLocationUrl(locationImages.work)
-    setTransition(true)
-    startTransition()
-    soundWorkPlay()
-    soundStreetStop()
-    
+ 
   }
 
 
   const goHome = () => {
-    setLocation("home")
-    setLocationUrl(locationImages.home)
-    setView(false)
+    changeLocation("home",{
+      playSound:soundHomePlay,
+      stopSound:[soundStreetStop],
+
+    })
     setTransition(true)
     startTransition()
-    soundHomePlay()
-    soundStreetStop()
-    
   }
 
 
  const goStore = () => {
-    setLocation("store")
-    setLocationUrl(locationImages.store)
+  changeLocation("store",{
+    playSound:soundStorePlay,
+    stopSound:[soundStreetStop],
+  })  
     setTransition(true)
     startTransition()
-    soundStorePlay()
-    soundStreetStop()
-    
   }
 
   const goBuilding = () => {
-    setLocation("bulding")
-    setViewBuild(true)
-    soundStreetStop()
-    soundWorkStop()
+    changeLocation("bulding",{
+      playSound:soundStorePlay,
+      stopSound:[soundWorkStop, soundStreetStop],
+      setView:false,
+      setViewBuild:true
+    }) 
   }
 
   const goOffice = () => {
-    setLocation("office")
-    setLocationUrl(locationImages.office)
-    setView(true)
-    soundStreetStop()
-    soundWorkStop()
-
+    changeLocation("office",{
+      playSound:soundStorePlay,
+      stopSound:[soundStreetStop, soundWorkStop],
+      setView:true,
+      setViewBuild:false
+    }) 
   }
 
  // buttons
@@ -473,7 +393,7 @@ const buyBread = () => {
           {viewBuild ? (
             <Bulding containerWidth={500} containerHeight={500} viewBuild={viewBuild} />
           ) : (
-            <ImagePlace transition={transition} url={locationUrl} />
+            <ImagePlace transition={transition} url={locationImages[location]} />
           )}
         
         {sleeping && <div>Sleeping...</div>}       
