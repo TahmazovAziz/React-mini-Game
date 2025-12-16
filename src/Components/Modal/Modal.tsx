@@ -3,10 +3,13 @@ import './Modal.css';
 interface ModalProps {
     children: React.ReactNode;
     viewModal: boolean;
-    hideModal:() => void;
+    setModal:(value: boolean) => void
     
 }
-export default function Modal({children, viewModal, hideModal}:ModalProps){
+export default function Modal({children, viewModal, setModal}:ModalProps){
+    const hideModal = () => {
+        setModal(false)
+      }
     const modalStyle:React.CSSProperties = {
         width:'100%',
         height: '100vh',

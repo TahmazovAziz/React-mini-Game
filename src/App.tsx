@@ -262,9 +262,7 @@ const buyBread = () => {
 }
 
 
-  const hideModal = () => {
-      setModal(false)
-  }
+
 
   const btnContainer = {
      display:sleeping ? "none" : "flex",
@@ -272,11 +270,10 @@ const buyBread = () => {
 
   return (
     <>
-      <Modal viewModal={modal} hideModal={hideModal}>{textModal}</Modal>
+      <Modal viewModal={modal} setModal={setModal}>{textModal}</Modal>
       <div className="game-wrapper">
         <PlayerInfo money={gameState.money} health={gameState.health} food={gameState.food} />
         <WorkPlace view={view}/>
-        
           {viewBuild ? (
             <Bulding containerWidth={500} containerHeight={500} viewBuild={viewBuild} />
           ) : (
@@ -291,7 +288,6 @@ const buyBread = () => {
         />
           <Button onClick={saveGame}>💾 Save Game</Button>
         </div>
-
       </div>
     </>
   )
