@@ -26,6 +26,7 @@ import workSoundPath from './assets/sounds/workS.mp3'
 import useSound from './hooks/useSound'
 import GAME_CONFIG from './constants/gameConfig.ts'
 import gameReducer from './context/GameContext.tsx'
+import useLocations from './hooks/useLocations.tsx'
 
 function App() {
 
@@ -40,7 +41,6 @@ function App() {
 
   const [view, setView] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
-////////
   const locationImages ={
     home: homeImage,
     street: streetImage,
@@ -51,7 +51,6 @@ function App() {
   }
   const [location, setLocation] = useState<keyof typeof locationImages>("home")
   const [locationUrl, setLocationUrl] = useMemo(() => locationImages[location] , [locationImages, location])
-////////
   const timerRef = useRef<number | null>(null)
   const [modal, setModal] = useState(false)
   const [textModal, setTextModal] = useState("")
@@ -73,7 +72,33 @@ function App() {
   const soundWork = useRef<HTMLAudioElement | null>(null)
   const {playSound:soundWorkPlay, stopSound:soundWorkStop} = useSound({soundRef: soundWork, soundPath: workSoundPath})
   const [workingTime, setWorkingTime] = useState(0)
+  const startTransition = () => {
+    if(timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+    setTransition(false)
+    requestAnimationFrame(() => setTransition(true))
+    timerRef.current = window.setTimeout(() => {
+      setTransition(false)
+      timerRef.current = null
+    }, 4000)
+  }
   
+  const { goOutside, goHome, goStore, work, goBuilding, goOffice } = useLocations({
+    setLocation,
+    setView,
+    setViewBuild,
+    setTransition,
+    startTransition,
+    soundStreetPlay,
+    soundHomePlay,
+    soundStorePlay,
+    soundWorkPlay,
+    soundStreetStop,
+    soundHomeStop,
+    soundStoreStop,
+    soundWorkStop,
+  })
 
   useEffect(()=>{
     loadGame()
@@ -148,30 +173,7 @@ function App() {
   }, [viewBuild, view])
 
 
-  const changeLocation = (
-    newlocation:keyof typeof locationImages,
-    options?:{
-      playSound?:()=>void,
-      stopSound?:(()=>void)[],
-      setViewBuild?:boolean,
-      setView?:boolean,
-    }
-  ) => {
-    setLocation(newlocation)
-    if(options?.stopSound){
-      options.stopSound.forEach(stop => stop())
-    }
-    if(options?.playSound){
-      options.playSound();
-    }
-    if(options?.setViewBuild !== undefined ){
-      setViewBuild(options.setViewBuild)
-    }
-    if(options?.setView !== undefined){
-      setView(options.setView)
-    }
-  
-  }
+
   const saveGame = () => {
     try{
       const saveGame = {
@@ -206,32 +208,6 @@ function App() {
       console.error("Error loading game:", error)
     }
   }
-
-  
-  const startTransition = () => {
-    if(timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-    setTransition(false)
-    requestAnimationFrame(() => setTransition(true))
-
-    timerRef.current = setTimeout(() => {
-      setTransition(false)
-      timerRef.current = null
-    }, 4000)
-  }
-
-
-  
-  const goOutside = () => {
-    changeLocation("street",{
-      playSound:soundStreetPlay,
-      stopSound:[soundHomeStop, soundStoreStop, soundWorkStop],
-      setView:false,
-      setViewBuild:false
-    })
-  }
-
 
 const sleep = () => {
   if(gameState.health < 30){
@@ -284,55 +260,7 @@ const buyBread = () => {
 }
 
 
-  const work = () => {
-    changeLocation("work",{
-      playSound:soundWorkPlay,
-      stopSound:[soundStreetStop],
-    })  
-    setViewBuild(false)
-    setView(false)
 
- 
-  }
-
-
-  const goHome = () => {
-    changeLocation("home",{
-      playSound:soundHomePlay,
-      stopSound:[soundStreetStop],
-
-    })
-    setTransition(true)
-    startTransition()
-  }
-
-
- const goStore = () => {
-  changeLocation("store",{
-    playSound:soundStorePlay,
-    stopSound:[soundStreetStop],
-  })  
-    setTransition(true)
-    startTransition()
-  }
-
-  const goBuilding = () => {
-    changeLocation("bulding",{
-      playSound:soundStorePlay,
-      stopSound:[soundWorkStop, soundStreetStop],
-      setView:false,
-      setViewBuild:true
-    }) 
-  }
-
-  const goOffice = () => {
-    changeLocation("office",{
-      playSound:soundStorePlay,
-      stopSound:[soundStreetStop, soundWorkStop],
-      setView:true,
-      setViewBuild:false
-    }) 
-  }
 
  // buttons
 
