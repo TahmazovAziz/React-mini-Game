@@ -8,6 +8,8 @@ import WorkPlace from './Components/WorkPlace/WorkPlace'
 import ImagePlace from './Components/ImagePlace/ImagePlace'
 import PlayerInfo from './Components/PlayerInfo/PlayerInfo'
 import Bulding from './Components/Bulding/Bulding'
+import LocationButtons from './Components/LocationButtons/LocationButtons.tsx'
+
 // images
 import homeImage from './assets/images/home.jpg'
 import streetImage from './assets/images/street.jpg'
@@ -23,8 +25,10 @@ import eatSoundPath from './assets/sounds/eat.mp3'
 import sleepSoundPath from './assets/sounds/sleep.mp3'
 import moneySoundPath from './assets/sounds/money.mp3'
 import workSoundPath from './assets/sounds/workS.mp3'
-import useSound from './hooks/useSound'
 import GAME_CONFIG from './constants/gameConfig.ts'
+
+// custom hook
+import useSound from './hooks/useSound'
 import gameReducer from './context/GameContext.tsx'
 import useLocations from './hooks/useLocations.tsx'
 
@@ -235,8 +239,6 @@ const eat = () => {
 
 
 
-
-
 const buyMeat  = () => {
   if(gameState.money >= GAME_CONFIG.MEAT_COST){
     dispatch({type:'BUY_MEAT'})
@@ -259,49 +261,6 @@ const buyBread = () => {
   }
 }
 
-
-
-
- // buttons
-
-  type ButtonType = {
-    onClick: () => void,
-    text: string
-  }
-
-  const renderButtons = () => {
-    const buttons: Record<string , ButtonType[]> = {
-      home:[
-        {onClick: goOutside,  text: "🏙️ Go outside"},
-        {onClick: sleep,  text: "😴 Sleep"},
-        {onClick: eat,  text: "🍽️ Eat"},
-      ],
-      street:[
-        {onClick: work,  text: "💼 Go to work"},
-        {onClick: goStore,  text: "🏪 Go to the store"},
-        {onClick: goHome,  text: "🏠 Go home"},
-      ],
-      store:[
-        {onClick: buyBread,  text: "🍞 Buy bread"},
-        {onClick: buyMeat,  text: "🥩 Buy meat"},
-        {onClick: goOutside,  text: "🏙️ Go outside"},
-      ],
-      work:[
-        {onClick: goBuilding,  text: "🧱 Go building"},
-        {onClick: goOffice,  text: "🏢 Go office"},
-        {onClick: goOutside,  text: "🏙️ Go outside"},
-      ],
-      bulding:[
-        {onClick: goOutside,  text: "🏙️ Go outside"},
-      ],
-      office:[
-        {onClick: goOutside,  text: "🏙️ Go outside"},
-      ]
-    }
-    return buttons[location]?.map((btn:ButtonType, i:number) => (
-      <Button key={i} onClick={btn.onClick}>{btn.text}</Button>
-    ))
-  }
 
   const hideModal = () => {
       setModal(false)
@@ -326,7 +285,10 @@ const buyBread = () => {
         
         {sleeping && <div>Sleeping...</div>}       
         <div className="buttons-container" style={btnContainer}>
-          {renderButtons()}
+        <LocationButtons
+          location={location}
+          actions={{ goOutside, goHome, goStore, work, goBuilding, goOffice, sleep, eat, buyBread, buyMeat }}
+        />
           <Button onClick={saveGame}>💾 Save Game</Button>
         </div>
 
