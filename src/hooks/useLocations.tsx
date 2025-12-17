@@ -86,15 +86,13 @@ export default function useLocations({
 
   const goBuilding = () =>
     changeLocation('bulding', {
-      playSound: soundStorePlay,
-      stopSound: [soundWorkStop, soundStreetStop],
+      stopSound: [soundWorkStop],
       setView: false,
       setViewBuild: true,
     });
   const goOffice = () =>
       changeLocation('office', {
-        playSound: soundStorePlay,
-        stopSound: [soundStreetStop, soundWorkStop],
+        stopSound: [soundWorkStop],
         setView: true,
         setViewBuild: false,
   });

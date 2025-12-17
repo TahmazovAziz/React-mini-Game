@@ -1,6 +1,6 @@
 import GAME_CONFIG from '../constants/gameConfig';
 
-type GameAction = 
+export type GameAction = 
 | {type:'EAT'}
 | {type:'SLEEP'}
 | {type:'BUY_BREAD'}
@@ -11,7 +11,7 @@ type GameAction =
 | {type:'WORK_OFFICE'}
 | {type:'LOAD_GAME', payload:GameState}
 
-type GameState = {
+export type GameState = {
     health: number;
     money: number;
     food: number;
@@ -32,7 +32,6 @@ const gameReducer = (state:GameState, action:GameAction) => {
         if(state.health < 70) {
           return {
             ...state,
-            food: state.food - GAME_CONFIG.EAT_FOOD_DECREASE,
             health: Math.min(state.health + GAME_CONFIG.SLEEP_HEALTH_INCREASE, 100)
           }
         }

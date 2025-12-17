@@ -1,5 +1,5 @@
 import {  useEffect, useMemo, useReducer, useRef, useState} from 'react'
-import type { RefObject } from 'react'
+import type { ActionDispatch, Dispatch, RefObject, SetStateAction } from 'react'
 import './App.css'
 // component
 import Button from './Components/Button/Button'
@@ -29,8 +29,10 @@ import GAME_CONFIG from './constants/gameConfig.ts'
 
 // custom hook
 import useSound from './hooks/useSound'
-import gameReducer from './context/GameContext.tsx'
+import gameReducer, { type GameAction } from './context/GameContext.tsx'
 import useLocations from './hooks/useLocations.tsx'
+import useHomeAction from './hooks/useHomeAction.tsx'
+import useGameSave from './hooks/useGameSave.tsx'
 
 function App() {
 
@@ -76,6 +78,7 @@ function App() {
   const soundWork = useRef<HTMLAudioElement | null>(null)
   const {playSound:soundWorkPlay, stopSound:soundWorkStop} = useSound({soundRef: soundWork, soundPath: workSoundPath})
   const [workingTime, setWorkingTime] = useState(0)
+
   const startTransition = () => {
     if(timerRef.current) {
       clearTimeout(timerRef.current)
@@ -104,6 +107,16 @@ function App() {
     soundWorkStop,
   })
 
+  const {sleep, eat, buyMeat, buyBread} = useHomeAction({
+    dispatch,
+    gameState,
+    setModal,
+    setSleeping,
+    setTextModal,
+    soundSleepPlay,
+    soundEatPlay,
+    soundMoneyPlay,
+  })
   useEffect(()=>{
     loadGame()
   }, [])
@@ -178,90 +191,15 @@ function App() {
 
 
 
-  const saveGame = () => {
-    try{
-      const saveGame = {
-        gameState,
-        location,
-        locationUrl,
-        timestemp:new Date().toISOString()
-      }
-      window.localStorage.setItem('game_save', JSON.stringify(saveGame))
-      setModal(true);
-      setTextModal('Game saved ✅');
-    }
-    catch(error){
-      console.error("Error saving game:", error)
-      setModal(true);
-      setTextModal(`An error occurred, please try again later ❌`)
-    }
-  }
-
-  const loadGame = () => {
-    try {
-      if(typeof window === 'undefined') return;
-
-      const result = window.localStorage.getItem('game_save')
-      if(result){
-        const saveData = JSON.parse(result)
-        dispatch({type:'LOAD_GAME', payload:saveData.gameState})
-        setLocation(saveData.location)
-      }
-    }
-    catch (error){
-      console.error("Error loading game:", error)
-    }
-  }
-
-const sleep = () => {
-  if(gameState.health < 30){
-    dispatch({type:'SLEEP'});
-    setSleeping(true);
-    setTimeout(() => {setSleeping(false)}, 4000);
-    soundSleepPlay();
-  }
-  else{
-      setModal(true);
-      setTextModal("You can't sleep if your health is over 30");
-  }
-}
-
-const eat = () => {   
-    dispatch({type:'EAT'});
-    if(gameState.food === 0 || gameState.health >= GAME_CONFIG.MAX_HEALTH){
-      setModal(true);
-      setTextModal("Not enough food or you are full"); 
-    }
-    else{
-      soundEatPlay()
-    }
-};
-
-
-
-const buyMeat  = () => {
-  if(gameState.money >= GAME_CONFIG.MEAT_COST){
-    dispatch({type:'BUY_MEAT'})
-    soundMoneyPlay();
-  }
-  else{
-    setModal(true)
-    setTextModal("Not enough money")
-  }
-};
-
-const buyBread = () => {
-  if(gameState.money >= GAME_CONFIG.BREAD_COST){
-    dispatch({type:'BUY_BREAD'})
-    soundMoneyPlay()
-  }
-  else{
-    setModal(true)
-    setTextModal("Not enough money")
-  }
-}
-
-
+const { saveGame, loadGame } = useGameSave({
+  gameState,
+  location,
+  locationUrl,
+  dispatch,
+  setLocation,
+  setModal,
+  setTextModal,
+});
 
 
   const btnContainer = {
