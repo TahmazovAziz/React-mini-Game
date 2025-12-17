@@ -95,7 +95,7 @@ npm run dev
 
 ## 🖼️ Скриншот
 
-![[photo.jpeg]]
+![screenshot](./photo.jpeg)
 
 
 ---
