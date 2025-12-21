@@ -1,6 +1,10 @@
 import { useRef, useState } from "react"
 import BuildSoundPath from '../../assets/sounds/build.mp3'
 import useSound from "../../hooks/useSound";
+import buildImage from '../../assets/images/apartament.png'
+import buildBackImage from '../../assets/images/build.png'
+import skyImage from '../../assets/images/sky.jpeg'
+
 
 interface BuldingProps{
     containerWidth:number;
@@ -11,12 +15,12 @@ interface BuldingProps{
 export default function Bulding({containerWidth,containerHeight, viewBuild}:BuldingProps){
     const [top, setTop] = useState(74)
     const [home, setHome] = useState<number[]>([])
-    const [callCount, setCallCount] = useState(0)
+    const [, setCallCount] = useState(0)
     const [viewInstr, setViewInstr] = useState(true)
     const [plusBuild, setPlusBuild] = useState(false)
     const buildSound = useRef<HTMLAudioElement>(null)
-    const {playSound, stopSound} = useSound({soundRef: buildSound})
-    const [backImage,setBackImage] = useState('../../src/assets/images/build.png')
+    const {playSound} = useSound({soundRef: buildSound})
+    const [backImage,setBackImage] = useState(buildBackImage)
     const Cont:React.CSSProperties = {
         width: `${containerWidth}px`,
         height: `${containerHeight}px`,
@@ -32,7 +36,7 @@ export default function Bulding({containerWidth,containerHeight, viewBuild}:Buld
     const homeStyle:React.CSSProperties = {
         width:"120px",
         height:"120px",
-        backgroundImage: "url('../../src/assets/images/apartament.png')",
+        backgroundImage: `url(${buildImage})`,
         backgroundSize: '100% 100%',
         position: "absolute",
         left: "40%"
@@ -62,7 +66,7 @@ export default function Bulding({containerWidth,containerHeight, viewBuild}:Buld
                 setTop(e=> e - 11)
                 home.push(top)
                 if(home.length >= 10){
-                    setBackImage('../../src/assets/images/sky.jpeg')
+                    setBackImage(skyImage)
                     setHome([])
                     setTop(77)
                 }

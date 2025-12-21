@@ -11,6 +11,11 @@
   border-radius: 10px;
   margin: 10px auto;
 }
+.player-info.dark{
+    background: #111827;
+    border: 1px solid #374151;
+    
+}
 .player-info>p{
     font-size: 20px;
     text-transform: uppercase;
@@ -18,9 +23,18 @@
 .health{
     color: red;
 }
+.health.dark{
+    color: #F87171;
+}
 .money{
     color: #12db12;
 }
+.money.dark{
+    color:#34D399;
+}
 .food{
     color: #ca5010;
+}
+.food.dark{
+    color: #FBBF24;
 }

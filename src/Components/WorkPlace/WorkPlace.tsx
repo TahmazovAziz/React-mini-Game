@@ -10,11 +10,11 @@ interface WorkPlaceProps {
 export default function WorkPlace({view}: WorkPlaceProps) {
     const [top, setTop] = useState(0)
     const [word, setWord] = useState<number[]>([])
-    const [callCount, setCallCount] = useState(0)
+    const [, setCallCount] = useState(0)
     const [viewInstr, setViewInstr] = useState(true)
     const [plusBuild, setPlusBuild] = useState(false)
     const OfficeSound = useRef<HTMLAudioElement>(null)
-    const {playSound, stopSound} = useSound({soundRef: OfficeSound})
+    const {playSound} = useSound({soundRef: OfficeSound})
     const wordStyle:React.CSSProperties = {
         width:"120px",
         height:"120px",
