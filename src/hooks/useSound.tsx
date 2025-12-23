@@ -9,7 +9,6 @@ export default function useSound({soundRef: soundRef, soundPath: soundPath}:UseS
   const playSound = () =>{
     if (!soundRef.current) {soundRef.current = new Audio(soundPath)}
     if (soundRef.current) {
-      if(!soundRef.current.play()){
         try{
           soundRef.current.currentTime = 0
           soundRef.current.play()
@@ -17,7 +16,6 @@ export default function useSound({soundRef: soundRef, soundPath: soundPath}:UseS
         catch(er){
           console.log('Error sound' + er)
         }
-      }
     }
   }
 
