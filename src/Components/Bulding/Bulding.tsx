@@ -1,9 +1,9 @@
 import { useRef, useState } from "react"
 import BuildSoundPath from '../../assets/sounds/build.mp3'
 import useSound from "../../hooks/useSound";
-import buildImage from '../../assets/images/apartament.png'
-import buildBackImage from '../../assets/images/build.png'
-import skyImage from '../../assets/images/sky.jpeg'
+import buildImage from '../../assets/images/apartament.webp'
+import buildBackImage from '../../assets/images/build.webp'
+import skyImage from '../../assets/images/sky.webp'
 
 
 interface BuldingProps{

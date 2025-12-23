@@ -22,12 +22,12 @@ import useHomeAction from '../../hooks/useHomeAction'
 import useGameSave from '../../hooks/useGameSave'
 
 // images
-import homeImage from '../../assets/images/home.jpg'
-import streetImage from '../../assets/images/street.jpg'
-import storeImage from '../../assets/images/store.jpeg'
-import workImage from '../../assets/images/work.png'
-import officeImage from '../../assets/images/office.png'
-import buldingImage from "../../assets/images/build.png";
+import homeImage from '../../assets/images/home.webp'
+import streetImage from '../../assets/images/street.webp'
+import storeImage from '../../assets/images/store.webp'
+import workImage from '../../assets/images/work.webp'
+import officeImage from '../../assets/images/office.webp'
+import buldingImage from '../../assets/images/build.webp';
 
 import { useReducer, useState, useMemo, useRef, useEffect, useContext } from "react";
 import Modal from "../Modal/Modal";
